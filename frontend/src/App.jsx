@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Navbar from './components/Navbar.jsx'
 import Dashboard from './components/Dashboard.jsx'
 import LoginForm from './components/LoginForm.jsx'
@@ -11,6 +11,7 @@ function App() {
   const [lastSynced, setLastSynced] = useState(null)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState('')
+  const [bootstrapping, setBootstrapping] = useState(hasSession()) // NEW
 
   const handleLoginSuccess = (loginData) => {
     setData(loginData)
@@ -24,12 +25,10 @@ function App() {
     setError('')
     try {
       const fresh = await refresh()
-      // /refresh doesn't re-send profile — keep the one from login.
-      setData((prev) => ({ ...prev, ...fresh, profile: prev?.profile }))
+      setData((prev) => ({ ...fresh, profile: prev?.profile ?? fresh.profile }))
       setLastSynced(new Date().toLocaleString())
     } catch (err) {
       setError(err.message)
-      // The stored cookies are no good anymore — back to the login screen.
       clearSession()
       setAuthed(false)
     } finally {
@@ -37,11 +36,22 @@ function App() {
     }
   }, [])
 
+  // NEW: on first load, if we already have a session, fetch data automatically
+  useEffect(() => {
+    if (hasSession()) {
+      sync().finally(() => setBootstrapping(false))
+    }
+  }, [sync])
+
   const handleLogout = () => {
     clearSession()
     setAuthed(false)
     setData(null)
     setLastSynced(null)
+  }
+
+  if (bootstrapping) {
+    return <p style={{ padding: 24 }}>Loading your dashboard…</p> // or a spinner component
   }
 
   if (!authed || !data) {
