@@ -5,13 +5,15 @@ import LoginForm from './components/LoginForm.jsx'
 import { refresh, clearSession, hasSession } from './api.js'
 import './App.css'
 
+const AUTO_SYNC_INTERVAL_MS = 5 * 60 * 1000 // every 5 minutes — adjust as you like
+
 function App() {
   const [data, setData] = useState(null)
   const [authed, setAuthed] = useState(hasSession())
   const [lastSynced, setLastSynced] = useState(null)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState('')
-  const [bootstrapping, setBootstrapping] = useState(hasSession()) // NEW
+  const [bootstrapping, setBootstrapping] = useState(hasSession())
 
   const handleLoginSuccess = (loginData) => {
     setData(loginData)
@@ -36,12 +38,23 @@ function App() {
     }
   }, [])
 
-  // NEW: on first load, if we already have a session, fetch data automatically
+  // Initial sync on page load, if a session already exists
   useEffect(() => {
     if (hasSession()) {
       sync().finally(() => setBootstrapping(false))
     }
   }, [sync])
+
+  // NEW: keep syncing automatically in the background while logged in
+  useEffect(() => {
+    if (!authed) return
+
+    const id = setInterval(() => {
+      sync()
+    }, AUTO_SYNC_INTERVAL_MS)
+
+    return () => clearInterval(id)
+  }, [authed, sync])
 
   const handleLogout = () => {
     clearSession()
@@ -51,7 +64,7 @@ function App() {
   }
 
   if (bootstrapping) {
-    return <p style={{ padding: 24 }}>Loading your dashboard…</p> // or a spinner component
+    return <p style={{ padding: 24 }}>Loading your dashboard…</p>
   }
 
   if (!authed || !data) {
