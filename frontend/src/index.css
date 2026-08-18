@@ -21,6 +21,27 @@
   --sans: 'Inter', system-ui, sans-serif;
   --mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
 
+  /* ---- dashboard shell: neo-brutalist palette layered on top ---- */
+  --dash-bg: #faf1de;
+  --sidebar-bg: #bfe3c6;
+  --yellow: #f6c445;
+  --yellow-soft: #fdecbc;
+  --pink: #f2c6ec;
+  --pink-soft: #fbe7f8;
+  --sky: #92d3f2;
+  --sky-soft: #ddf2fb;
+  --peach: #f8cca3;
+  --peach-soft: #fce6cf;
+  --mint: #b8e3c4;
+  --mint-soft: #e2f5e7;
+
+  --stroke: 2px;
+  --shadow-hard: 5px 5px 0 var(--ink);
+  --shadow-hard-sm: 3px 3px 0 var(--ink);
+  --radius-card: 16px;
+  --radius-chip: 999px;
+  --radius-btn: 10px;
+
   font: 16px/1.5 var(--sans);
   color-scheme: light;
   color: var(--ink-soft);
@@ -99,4 +120,124 @@ input:focus-visible {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* =========================================================================
+   Dashboard shell — shared neo-brutalist utility classes.
+   Bold ink borders + hard offset shadows, no blur, no gradients.
+   ========================================================================= */
+
+.bcard {
+  background: var(--surface);
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-hard);
+}
+
+.bcard--yellow { background: var(--yellow-soft); }
+.bcard--pink { background: var(--pink-soft); }
+.bcard--sky { background: var(--sky-soft); }
+.bcard--peach { background: var(--peach-soft); }
+.bcard--mint { background: var(--mint-soft); }
+
+.bchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: var(--stroke) solid var(--ink);
+  border-radius: var(--radius-chip);
+  background: var(--surface);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.bchip--good { background: var(--mint-soft); }
+.bchip--warning { background: var(--yellow-soft); }
+.bchip--danger { background: #f7d9d2; }
+
+.bbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: var(--radius-btn);
+  border: var(--stroke) solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+  box-shadow: var(--shadow-hard-sm);
+  transition: transform 0.12s ease;
+}
+
+.bbtn:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+}
+
+.bbtn:active:not(:disabled) {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.bbtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.bbtn--outline {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.bbtn--ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.bbtn--ghost:hover:not(:disabled) {
+  transform: none;
+  border-color: var(--ink);
+}
+
+.bbtn--icon {
+  padding: 9px;
+  border-radius: var(--radius-btn);
+}
+
+.bstepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bstepper__dots {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.bstepper__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  border: 1.5px solid var(--ink);
+  background: var(--surface);
+  padding: 0;
+  cursor: pointer;
+}
+
+.bstepper__dot--active {
+  background: var(--ink);
 }

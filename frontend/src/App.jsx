@@ -1,11 +1,8 @@
-import { useCallback, useEffect, useState } from 'react'
-import Navbar from './components/Navbar.jsx'
-import Dashboard from './components/Dashboard.jsx'
+import { useCallback, useState } from 'react'
+import Shell from './components/dashboard/Shell.jsx'
 import LoginForm from './components/LoginForm.jsx'
 import { refresh, clearSession, hasSession } from './api.js'
 import './App.css'
-
-const AUTO_SYNC_INTERVAL_MS = 5 * 60 * 1000 // every 5 minutes — adjust as you like
 
 function App() {
   const [data, setData] = useState(null)
@@ -13,7 +10,6 @@ function App() {
   const [lastSynced, setLastSynced] = useState(null)
   const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState('')
-  const [bootstrapping, setBootstrapping] = useState(hasSession())
 
   const handleLoginSuccess = (loginData) => {
     setData(loginData)
@@ -27,34 +23,18 @@ function App() {
     setError('')
     try {
       const fresh = await refresh()
-      setData((prev) => ({ ...fresh, profile: prev?.profile ?? fresh.profile }))
+      // /refresh doesn't re-send profile — keep the one from login.
+      setData((prev) => ({ ...prev, ...fresh, profile: prev?.profile }))
       setLastSynced(new Date().toLocaleString())
     } catch (err) {
       setError(err.message)
+      // The stored cookies are no good anymore — back to the login screen.
       clearSession()
       setAuthed(false)
     } finally {
       setRefreshing(false)
     }
   }, [])
-
-  // Initial sync on page load, if a session already exists
-  useEffect(() => {
-    if (hasSession()) {
-      sync().finally(() => setBootstrapping(false))
-    }
-  }, [sync])
-
-  // NEW: keep syncing automatically in the background while logged in
-  useEffect(() => {
-    if (!authed) return
-
-    const id = setInterval(() => {
-      sync()
-    }, AUTO_SYNC_INTERVAL_MS)
-
-    return () => clearInterval(id)
-  }, [authed, sync])
 
   const handleLogout = () => {
     clearSession()
@@ -63,20 +43,19 @@ function App() {
     setLastSynced(null)
   }
 
-  if (bootstrapping) {
-    return <p style={{ padding: 24 }}>Loading your dashboard…</p>
-  }
-
   if (!authed || !data) {
     return <LoginForm onSuccess={handleLoginSuccess} />
   }
 
   return (
-    <>
-      <Navbar onRefresh={sync} onLogout={handleLogout} refreshing={refreshing} />
-      {error && <p className="app__error">{error}</p>}
-      <Dashboard data={data} lastSynced={lastSynced} />
-    </>
+    <Shell
+      data={data}
+      lastSynced={lastSynced}
+      onRefresh={sync}
+      refreshing={refreshing}
+      onLogout={handleLogout}
+      error={error}
+    />
   )
 }
 

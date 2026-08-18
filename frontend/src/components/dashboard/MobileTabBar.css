@@ -1,0 +1,48 @@
+.mtab {
+  display: none;
+}
+
+@media (max-width: 880px) {
+  .mtab {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    background: var(--sidebar-bg);
+    border-top: var(--stroke) solid var(--ink);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  }
+
+  .mtab__item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 2px;
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    font-family: var(--sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 10px;
+  }
+
+  .mtab__item--active {
+    color: var(--ink);
+    background: var(--surface);
+    border: var(--stroke) solid var(--ink);
+    box-shadow: var(--shadow-hard-sm);
+    transform: translateY(-2px);
+  }
+}
+
+@media (max-width: 380px) {
+  .mtab__item span {
+    display: none;
+  }
+}
